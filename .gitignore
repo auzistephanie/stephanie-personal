@@ -5,3 +5,28 @@ __pycache__/
 obsidian-vault/
 .DS_Store
 Tailored_CVs/
+
+# Python virtual environments
+venv/
+.venv/
+env/
+
+# Google service account credentials
+*_sa.json
+service_account.json
+credentials.json
+credentials/
+*.json.key
+
+# Build artifacts
+dist/
+build/
+*.egg-info/
+.pytest_cache/
+
+# Extra env variants
+.env.*
+
+# Editors
+.vscode/
+.idea/

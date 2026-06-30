@@ -20,7 +20,7 @@ stephanie-personal/
 ├── idea_inbox/   # Idea bot、digest、智囊團腳本
 ├── obsidian/     # 每週反思草稿
 ├── docs/         # 個人背景文件、idea_review_council 角色設定
-└── scripts/      # github_push.py（推送用）
+└── scripts/      # 雜項腳本
 ```
 
 ## 共用資源
@@ -31,8 +31,17 @@ stephanie-personal/
 
 ## Git Push
 
-**用 `scripts/github_push.py`** — 同 business repo 同款。唔用 git CLI（除非係全新 repo 首次 init）。
+用 **git CLI** 推送：
 
 ```bash
-python3 scripts/github_push.py "your commit message"
+git add <files> && git commit -m "msg" && git push
+```
+
+## 首次使用
+
+複製 `.env.template` 至 `.env`，填入真實憑證後再運行任何腳本：
+
+```bash
+cp .env.template .env
+# 然後編輯 .env，填入各項 credentials
 ```
