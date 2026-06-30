@@ -29,6 +29,14 @@ stephanie-personal/
 - Idea Inbox 欄位定義：參考 business repo `.claude/SHEETS_ASANA.md`
 - `error_to_idea.py`：仍在 business repo `scripts/`，唔需要 copy 過嚟
 
+## Cowork Tasks
+
+| Task | Script | 觸發 |
+|---|---|---|
+| Idea Inbox Digest | `idea_inbox/idea_digest.py` | 平日 10:48am |
+| Weekly Reflection | `idea_inbox/weekly_reflection.py` | 每週五 5:08pm |
+| Notify Kristy Monthly | 仍在 business repo `scripts/notify_kristy_monthly.py` | 每月第1個 weekday |
+
 ## Git Push
 
 用 **git CLI** 推送：
