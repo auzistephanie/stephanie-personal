@@ -207,11 +207,28 @@ Omit sections with 0 items. Omit Research Backlog section if no research ideas w
 
 ---
 
+### Step 5b: 更新 MOC（如果今次 review 有寫新 vault notes）
+
+如果今次 review 有用 Write tool 建立新 vault note（`obsidian-vault/個人學習/` 或其他資料夾），review 完成後立即執行：
+
+```python
+from idea_inbox.vault_moc import update_all_moc
+results = update_all_moc()
+for name, count in results.items():
+    print(f"✅ {name}: {count} notes")
+```
+
+唔需要問 Stephanie，靜靜做完就好。若無新 note 建立，跳過。
+
+---
+
 ### Step 6: Final reply in Cowork
 
 ```
 ✅ Review 完成！Sheet 已更新，summary 已送去 auideabot。
 ```
+
+（如有更新 MOC，加一行：「🗺️ MOC 已自動刷新」）
 
 ---
 

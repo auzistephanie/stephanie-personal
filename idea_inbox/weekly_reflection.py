@@ -260,6 +260,16 @@ def main():
 
     print("📱 發送 Telegram 通知...")
     _send_telegram(filepath)
+
+    print("🗺️  更新 MOC 頁...")
+    try:
+        from idea_inbox.vault_moc import update_all_moc
+        moc_results = update_all_moc()
+        for name, count in moc_results.items():
+            print(f"  ✅ {name}: {count} notes")
+    except Exception as e:
+        print(f"  ⚠️  MOC update failed: {e}")
+
     print("✅ 完成！")
     try:
         from core import heartbeat
