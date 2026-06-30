@@ -1,4 +1,4 @@
-"""core/idea_review.py — Idea Inbox review logic.
+"""idea_inbox/idea_review.py — Idea Inbox review logic.
 
 Reads pending ideas from Google Sheet, returns structured list for review,
 and updates status/action after decisions are made.

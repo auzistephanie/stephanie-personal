@@ -10,7 +10,7 @@ sys.path.insert(0, os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
 
 import requests
 from core.sheets_client import get_gc
-from core.idea_review import get_pending_ideas, get_research_ideas, purge_old_deleted_ideas
+from idea_inbox.idea_review import get_pending_ideas, get_research_ideas, purge_old_deleted_ideas
 
 
 def _load_idea_bot_creds() -> tuple[str, str]:
