@@ -4,7 +4,7 @@ __pycache__/
 *.log
 obsidian-vault/
 .DS_Store
-Tailored_CVs/
+/Tailored_CVs/
 
 # Python virtual environments
 venv/
