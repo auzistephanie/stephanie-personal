@@ -1,0 +1,7 @@
+__pycache__/
+*.pyc
+.env
+*.log
+obsidian-vault/
+.DS_Store
+Tailored_CVs/
