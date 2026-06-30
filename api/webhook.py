@@ -26,7 +26,7 @@ _IDEA_KEYBOARD = {
     "keyboard": [
         [{"text": "/last"}, {"text": "/list"}, {"text": "/pending"}],
         [{"text": "/stats"}, {"text": "/digest"}, {"text": "/search"}],
-        [{"text": "/deep"}, {"text": "/help"}],
+        [{"text": "/ainews"}, {"text": "/deep"}, {"text": "/help"}],
     ],
     "resize_keyboard": True,
     "persistent": True,
@@ -98,6 +98,32 @@ def _esc(text: str) -> str:
     return text.replace("<", "&lt;").replace(">", "&gt;")
 
 
+def _get_ai_news(gc, date_str: str | None = None) -> list[dict]:
+    """Read AI News tab — returns today's entries (or latest if date_str given)."""
+    from datetime import datetime, timedelta
+    if date_str is None:
+        date_str = (datetime.utcnow() + timedelta(hours=8)).strftime("%Y-%m-%d")
+    try:
+        from core.config import MASTER_SHEET_ID
+        ws = gc.open_by_key(MASTER_SHEET_ID).worksheet("AI News")
+        rows = ws.get_all_values()
+        news = []
+        for row in rows[1:]:
+            if len(row) >= 2 and row[0].startswith(date_str):
+                news.append({
+                    "title":     row[1] if len(row) > 1 else "",
+                    "source":    row[2] if len(row) > 2 else "",
+                    "tag":       row[3] if len(row) > 3 else "",
+                    "relevance": row[4] if len(row) > 4 else "",
+                    "summary":   row[5] if len(row) > 5 else "",
+                    "purpose":   row[6] if len(row) > 6 else "",
+                    "url":       row[7] if len(row) > 7 else "",
+                })
+        return news[:5]
+    except Exception:
+        return []
+
+
 def _handle_idea_cmd(chat_id: int | str, cmd: str, args: list[str], gc) -> None:
     from idea_inbox.idea_review import (
         get_pending_count, get_pending_ideas, get_recent_ideas,
@@ -115,6 +141,7 @@ def _handle_idea_cmd(chat_id: int | str, cmd: str, args: list[str], gc) -> None:
             "/stats — 各 category 統計\n"
             "/digest — 手動觸發 digest\n"
             "/search 關鍵字 — 搜尋 ideas\n"
+            "/ainews — 今日 AI News（每朝 9:10 自動抓取）\n"
             "/deep — Research 列表\n"
             "/deep N — Explore 第 N 條\n"
             "/help — 顯示呢個訊息\n\n"
@@ -226,6 +253,27 @@ def _handle_idea_cmd(chat_id: int | str, cmd: str, args: list[str], gc) -> None:
             f"<i>{_esc(title)}{'…' if len(idea['message']) > 60 else ''}</i>\n\n"
             f"{_esc(analysis)}"
         ))
+
+    elif cmd == "/ainews":
+        news = _get_ai_news(gc)
+        if not news:
+            _send_idea(chat_id, (
+                "📰 今日暫無 AI News\n\n"
+                "每朝 9:10 自動抓取，若已過 9:10 仍無，可能今日冇相關新聞。"
+            ))
+            return
+        lines = [f"📰 <b>今日 AI News</b>（{len(news)} 條）\n"]
+        for i, n in enumerate(news, 1):
+            tag = f"[{n['tag']}] " if n["tag"] else ""
+            lines.append(f"{i}. {tag}<b>{_esc(n['title'])}</b>")
+            if n["summary"]:
+                lines.append(f"   {_esc(n['summary'][:120])}")
+            if n["purpose"]:
+                lines.append(f"   💡 {_esc(n['purpose'][:80])}")
+            if n["url"]:
+                lines.append(f"   🔗 {n['url']}")
+            lines.append("")
+        _send_idea(chat_id, "\n".join(lines).rstrip())
 
     elif cmd == "/search":
         if not args:
