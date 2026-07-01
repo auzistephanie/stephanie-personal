@@ -42,7 +42,7 @@ def _git_push(commit_msg: str, explicit_files: list[str] | None = None):
     else:
         run(["git", "add", "-A"])
 
-    status = run(["git", "status", "--porcelain"])
+    status = run(["git", "-c", "core.quotepath=false", "status", "--porcelain"])
     staged = [l for l in status.stdout.splitlines() if l and not l.startswith("??")]
     if not staged:
         print("Nothing to commit — repo is up to date.")
@@ -93,7 +93,9 @@ def _changed_files(explicit_files: list[str] | None):
     """Return [(path, is_deleted), ...] from working tree (no lock needed)."""
     if explicit_files:
         return [(f, not os.path.exists(os.path.join(REPO_PATH, f))) for f in explicit_files]
-    status = run(["git", "status", "--porcelain"]).stdout.splitlines()
+    # -c core.quotepath=false: 唔好將非 ASCII（中文）檔名 octal-escape 做 "\344\275..."，
+    # 否則落面 path 攞到嘅係逐個 backslash-digit 嘅字面文字，open() 揾唔到個真檔案。
+    status = run(["git", "-c", "core.quotepath=false", "status", "--porcelain"]).stdout.splitlines()
     out = []
     for l in status:
         if not l:
