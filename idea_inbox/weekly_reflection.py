@@ -205,10 +205,19 @@ def _write_note(title: str, draft: str) -> pathlib.Path:
 
 
 def _obsidian_link(filepath: pathlib.Path) -> str:
-    """Generate an obsidian:// deep link to open the note directly."""
+    """Generate an obsidian:// deep link using the canonical vault+file format.
+
+    唔靠絕對路徑（跨機／split 後絕對路徑會對唔上），改用 vault 名 + vault 內相對
+    路徑，只要 Obsidian 有個叫 obsidian-vault 嘅 vault 就開得到。
+    """
     from urllib.parse import quote
-    abs_path = str(filepath.resolve())
-    return f"obsidian://open?path={quote(abs_path, safe='')}"
+    vault = "obsidian-vault"
+    try:
+        rel = filepath.resolve().relative_to(OBSIDIAN_ROOT.resolve())
+    except ValueError:
+        rel = pathlib.Path(filepath.name)
+    rel_str = str(rel.with_suffix(""))  # Obsidian 唔需要 .md 後綴
+    return f"obsidian://open?vault={quote(vault, safe='')}&file={quote(rel_str, safe='')}"
 
 
 def _send_telegram(filepath: pathlib.Path) -> None:
