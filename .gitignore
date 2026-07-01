@@ -17,6 +17,10 @@ service_account.json
 credentials.json
 credentials/
 *.json.key
+just-clover-487108-a0-f091da582010.json
+
+# Streamlit secrets (DeepSeek / Telegram tokens)
+.streamlit/secrets.toml
 
 # Build artifacts
 dist/
