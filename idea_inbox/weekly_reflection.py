@@ -72,7 +72,8 @@ def _get_new_obsidian_notes() -> list[str]:
     mon, _ = _week_range()
     notes = []
     for folder in OBSIDIAN_ROOT.iterdir():
-        if not folder.is_dir() or folder.name.startswith("0"):
+        # 00-MOC / 00-Templates 係生成/空白內容，唔算 user note；其他 0X- 資料夾要照計
+        if not folder.is_dir() or folder.name.startswith("00-"):
             continue
         for f in folder.glob("*.md"):
             try:
@@ -81,8 +82,8 @@ def _get_new_obsidian_notes() -> list[str]:
                     notes.append(f"{folder.name}/{f.stem}")
             except Exception:
                 continue
-    # Also check 01-工作, 02-個人, 04-貓貓健康
-    for folder_name in ["01-工作", "02-個人", "04-貓貓健康"]:
+    # Defense-in-depth fallback（正常由上面主 loop 已覆蓋，呢度淨係以防資料夾名有變）
+    for folder_name in ["01-工作", "02-個人", "03-買樓裝修", "05-貓貓健康"]:
         folder = OBSIDIAN_ROOT / folder_name
         if not folder.exists():
             continue

@@ -217,6 +217,7 @@ IDEA_CATEGORIES = [
     "AI",           # AI 模型/研究/趨勢（唔特定係 Claude）
     "Business",     # 商業模式/定價/策略/行銷/增長
     "Property",     # 買樓/裝修/供款/居所相關
+    "PetHealth",    # 貓貓（或其他寵物）健康/獸醫/日常照顧記錄
     "Personal",     # 個人生活，非 VNX 業務、非置業
     "Other",        # 以上都唔啱
 ]
@@ -239,8 +240,15 @@ _CATEGORY_ALIASES: dict[str, str] = {
     "property":     "Property",
     "home":         "Property",
     "renovation":   "Property",
+    "pet":          "PetHealth",
+    "pethealth":    "PetHealth",
+    "pet health":   "PetHealth",
+    "cat":          "PetHealth",
+    "vet":          "PetHealth",
     "research":     "Other",      # "Research" 唔係有效 category；action 先係 "research"
 }
+# 注：_normalize_category() 會過濾走非 A-Za-z 字元先做 lookup，所以呢個 dict 淨係放英文 key，
+# 中文 alias（例如「貓」「貓貓健康」）落嚟已經俾 regex 剝晒，放咗都冧唔中，故意唔加。
 
 
 def _normalize_category(raw: str) -> str:
@@ -270,7 +278,8 @@ def auto_categorize(text: str) -> str:
         f"根據以下 idea 內容，選出最合適嘅分類。\n"
         f"優先從以下標準分類選擇：{cats_str}\n\n"
         f"「Business」只限同 VNX 自身業務（課程/定價/營運策略）有關嘅內容；"
-        f"如果係銀行/按揭/理財/個人生活資訊等同 VNX 業務無關嘅內容，請選 Personal。\n\n"
+        f"如果係銀行/按揭/理財/個人生活資訊等同 VNX 業務無關嘅內容，請選 Personal。\n"
+        f"「PetHealth」淨係貓貓（或其他寵物）健康/獸醫/日常照顧相關內容。\n\n"
         f"如果以上都唔適合，請自行創造一個簡短精準嘅英文 tag（1-2個單詞，CamelCase）。\n\n"
         f"Idea：{text[:500]}\n\n"
         f"只回覆分類名，例如：Tool 或者 ClaudeCode"
