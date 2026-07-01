@@ -11,7 +11,7 @@
 | 智囊團 | Idea Review 時召喚多角色 council 討論，評估可行性 + 優先級（角色設定 `docs/idea_review_council.md`）|
 | Obsidian Vault（Second Brain）| 實際 vault 喺 `obsidian-vault/`（唔係 `obsidian/`，嗰個係空資料夾）。結構 + tag 用法見 `obsidian-vault/README.md`；問 vault 問題用 `askvault` skill |
 | Obsidian Reflection | 每週五自動生成反思草稿 → 寫入 `obsidian-vault/04-每週反思/` → 同步觸發 MOC 重建 |
-| Vault MOC（自動索引）| `idea_inbox/vault_moc.py`，由 weekly_reflection.py 每次跑完自動觸發，重建 `obsidian-vault/00-MOC/` 三個 index（個人學習／每週反思／買樓裝修），並彙整所有 note 嘅未剔 `- [ ]` commitment |
+| Vault MOC（自動索引）| `idea_inbox/vault_moc.py`，由 weekly_reflection.py 每次跑完自動觸發，重建 `obsidian-vault/00-MOC/` 五個 index（個人學習／每週反思／買樓裝修／01-工作／05-貓貓健康），並彙整所有 note 嘅未剔 `- [ ]` commitment |
 | Idea → Obsidian 自動歸檔 | idea-inbox-digest 執行「做」後，按 category 寫入對應 vault 資料夾（見 idea-inbox-digest scheduled task 內 category→subfolder 對照表）|
 | Shared Sheet Bridge | Idea Inbox 用同一 `MASTER_SHEET_ID`（business repo 共用）；`error_to_idea.py` 由 business repo 寫入 |
 

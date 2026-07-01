@@ -66,6 +66,7 @@ def _read_note(path: pathlib.Path) -> dict:
         "summary":  summary,
         "pending":  pending,
         "text":     text,
+        "fm":       fm,   # 全部 frontmatter key，畀個別 MOC builder 攞自定欄位（例如貓貓健康嘅 `cat`）
     }
 
 
@@ -127,6 +128,55 @@ def _build_每週反思_moc(notes: list[dict]) -> str:
     return "\n".join(lines) + _footer()
 
 
+def _build_01工作_moc(notes: list[dict]) -> str:
+    lines = [
+        "# 01-工作 MOC", "",
+        "> VNX 工作決定記錄索引。", "",
+        "## 決策記錄", "",
+    ]
+    for n in notes:
+        lines.append(f"- [[{n['stem']}]] — {n['summary'] or '—'}")
+    if not notes:
+        lines.append("*（暫時未有記錄）*")
+    lines.append("")
+
+    pending_lines = [
+        f"- [ ] {p}（來自 [[{n['stem']}]]）"
+        for n in notes for p in n["pending"]
+    ]
+    if pending_lines:
+        lines += ["## 未完成 Commitments", ""] + pending_lines + [""]
+
+    return "\n".join(lines) + _footer()
+
+
+def _build_貓貓健康_moc(notes: list[dict]) -> str:
+    groups: dict[str, list] = {}
+    for n in notes:
+        cat_name = (n["fm"].get("cat") or "其他").strip()
+        groups.setdefault(cat_name, []).append(n)
+
+    lines = ["# 05-貓貓健康 MOC", "", "> 貓貓健康記錄索引，按貓貓分組。", ""]
+
+    if not notes:
+        lines += ["*（暫時未有記錄）*", ""]
+    else:
+        for cat_name, cat_notes in sorted(groups.items()):
+            lines += [f"## {cat_name}", ""]
+            for n in sorted(cat_notes, key=lambda x: x["date"] or x["stem"], reverse=True):
+                lines.append(f"- [[{n['stem']}]] — {n['summary'] or '—'}")
+            lines.append("")
+
+    pending_lines = [
+        f"- [ ] {p}（來自 [[{n['stem']}]]）"
+        for n in notes for p in n["pending"]
+    ]
+    if pending_lines:
+        lines += ["## 未完成 Commitments（例如下次覆診）", ""] + pending_lines + [""]
+
+    return "\n".join(lines) + _footer()
+
+
 def _build_買樓裝修_moc(personal: list[dict], renovation: list[dict]) -> str:
     all_notes = personal + [n for n in renovation if n["stem"] != "README"]
 
@@ -167,15 +217,23 @@ def update_all_moc() -> dict[str, int]:
     (MOC_DIR / "每週反思 MOC.md").write_text(_build_每週反思_moc(reflections), encoding="utf-8")
 
     personal    = _list_notes(VAULT_ROOT / "02-個人")
-    renovation  = _list_notes(VAULT_ROOT / "03-買樓裝修")
+    renovation  = [n for n in _list_notes(VAULT_ROOT / "03-買樓裝修") if n["stem"] != "README"]
     (MOC_DIR / "買樓裝修 MOC.md").write_text(
         _build_買樓裝修_moc(personal, renovation), encoding="utf-8"
     )
 
+    work = [n for n in _list_notes(VAULT_ROOT / "01-工作") if n["stem"] != "README"]
+    (MOC_DIR / "01-工作 MOC.md").write_text(_build_01工作_moc(work), encoding="utf-8")
+
+    pethealth = [n for n in _list_notes(VAULT_ROOT / "05-貓貓健康") if n["stem"] != "README"]
+    (MOC_DIR / "05-貓貓健康 MOC.md").write_text(_build_貓貓健康_moc(pethealth), encoding="utf-8")
+
     return {
-        "個人學習 MOC":  len(learning),
-        "每週反思 MOC":  len(reflections),
-        "買樓裝修 MOC":  len(personal) + len(renovation),
+        "個人學習 MOC":   len(learning),
+        "每週反思 MOC":   len(reflections),
+        "買樓裝修 MOC":   len(personal) + len(renovation),
+        "01-工作 MOC":    len(work),
+        "05-貓貓健康 MOC": len(pethealth),
     }
 
 
