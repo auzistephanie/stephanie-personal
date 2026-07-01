@@ -220,9 +220,32 @@ def _obsidian_link(filepath: pathlib.Path) -> str:
     return f"obsidian://open?vault={quote(vault, safe='')}&file={quote(rel_str, safe='')}"
 
 
+def _note_body_for_telegram(filepath: pathlib.Path) -> str:
+    """Extract the reflection text from the note file for inline Telegram display.
+
+    去 YAML frontmatter + 底部自動生成註腳，HTML-escape，再將 **粗體** 轉 <b>。
+    """
+    import re, html
+    raw = filepath.read_text(encoding="utf-8")
+    body = raw
+    if raw.startswith("---"):
+        parts = raw.split("---", 2)
+        if len(parts) == 3:
+            body = parts[2]
+    body = body.split("\n---\n", 1)[0].strip()   # drop trailing footer
+    body = re.sub(r"^#\s+.*\n+", "", body, count=1)  # drop leading H1 (檔名已顯示標題)
+    body = html.escape(body)
+    body = re.sub(r"\*\*(.+?)\*\*", r"<b>\1</b>", body)
+    if len(body) > 3500:                          # Telegram 4096 char 上限保險
+        body = body[:3500].rstrip() + "…"
+    return body
+
+
 def _send_telegram(filepath: pathlib.Path) -> None:
-    """Send Telegram notification with a clickable Obsidian deep link."""
+    """Send Telegram notification with the draft text inline (手機即睇，唔靠 sync/link)
+    plus an Obsidian deep link as a secondary option (喺 Mac / 已同步手機 先開到)."""
     import requests as req
+    import html
     try:
         import tomli
         p = pathlib.Path(__file__).parent.parent / ".streamlit" / "secrets.toml"
@@ -233,11 +256,13 @@ def _send_telegram(filepath: pathlib.Path) -> None:
         if not token or not chat_id:
             print("[weekly_reflection] Telegram token/chat_id not found")
             return
+        body = _note_body_for_telegram(filepath)
         link = _obsidian_link(filepath)
         msg = (
-            f"📝 <b>週記草稿已建好！</b>\n\n"
-            f"📂 {filepath.name}\n\n"
-            f'<a href="{link}">✏️ 喺 Obsidian 打開修改</a>'
+            f"📝 <b>週記草稿已建好！</b>\n"
+            f"📂 {html.escape(filepath.name)}\n\n"
+            f"{body}\n\n"
+            f'<a href="{link}">✏️ 喺 Mac Obsidian 打開修改</a>'
         )
         req.post(
             f"https://api.telegram.org/bot{token}/sendMessage",
